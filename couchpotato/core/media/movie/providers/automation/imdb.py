@@ -37,21 +37,15 @@ class IMDBBase(Automation, RSS):
             'name': 'IMDB - Box Office',
             'url': 'http://www.imdb.com/boxoffice/',
         },
-        'rentals': {
-            'order': 3,
-            'name': 'IMDB - Top DVD rentals',
-            'url': 'http://www.imdb.com/boxoffice/rentals',
-            'type': 'json',
-        },
         'top250': {
-            'order': 4,
+            'order': 3,
             'name': 'IMDB - Top 250 Movies',
             'url': 'http://www.imdb.com/chart/top',
         },
     }
 
     def getInfo(self, imdb_id):
-        return fireEvent('movie.info', identifier = imdb_id, extended = False, merge = True)
+        return fireEvent('movie.info', identifier = imdb_id, extended = False, adding = False, merge = True)
 
     def getFromURL(self, url):
         log.debug('Getting IMDBs from: %s', url)
@@ -203,7 +197,7 @@ class IMDBCharts(IMDBBase):
                 try:
                     for imdb_id in imdb_ids[0:max_items]:
 
-                        is_movie = fireEvent('movie.is_movie', identifier = imdb_id, single = True)
+                        is_movie = fireEvent('movie.is_movie', identifier = imdb_id, adding = False, single = True)
                         if not is_movie:
                             continue
 
@@ -266,28 +260,21 @@ config = [{
                     'name': 'automation_charts_theater',
                     'type': 'bool',
                     'label': 'In Theaters',
-                    'description': 'New Movies <a href="http://www.imdb.com/movies-in-theaters/">In-Theaters</a> chart',
-                    'default': True,
-                },
-                {
-                    'name': 'automation_charts_rentals',
-                    'type': 'bool',
-                    'label': 'DVD Rentals',
-                    'description': 'Top DVD <a href="http://www.imdb.com/boxoffice/rentals">rentals</a> chart',
+                    'description': 'New Movies <a href="http://www.imdb.com/movies-in-theaters/" target="_blank">In-Theaters</a> chart',
                     'default': True,
                 },
                 {
                     'name': 'automation_charts_top250',
                     'type': 'bool',
                     'label': 'TOP 250',
-                    'description': 'IMDB <a href="http://www.imdb.com/chart/top/">TOP 250</a> chart',
+                    'description': 'IMDB <a href="http://www.imdb.com/chart/top/" target="_blank">TOP 250</a> chart',
                     'default': False,
                 },
                 {
                     'name': 'automation_charts_boxoffice',
                     'type': 'bool',
                     'label': 'Box office TOP 10',
-                    'description': 'IMDB Box office <a href="http://www.imdb.com/chart/">TOP 10</a> chart',
+                    'description': 'IMDB Box office <a href="http://www.imdb.com/chart/" target="_blank">TOP 10</a> chart',
                     'default': True,
                 },
             ],
@@ -308,28 +295,21 @@ config = [{
                     'name': 'chart_display_theater',
                     'type': 'bool',
                     'label': 'In Theaters',
-                    'description': 'New Movies <a href="http://www.imdb.com/movies-in-theaters/">In-Theaters</a> chart',
+                    'description': 'New Movies <a href="http://www.imdb.com/movies-in-theaters/" target="_blank">In-Theaters</a> chart',
                     'default': False,
                 },
                 {
                     'name': 'chart_display_top250',
                     'type': 'bool',
                     'label': 'TOP 250',
-                    'description': 'IMDB <a href="http://www.imdb.com/chart/top/">TOP 250</a> chart',
+                    'description': 'IMDB <a href="http://www.imdb.com/chart/top/" target="_blank">TOP 250</a> chart',
                     'default': False,
-                },
-                {
-                    'name': 'chart_display_rentals',
-                    'type': 'bool',
-                    'label': 'DVD Rentals',
-                    'description': 'Top DVD <a href="http://www.imdb.com/boxoffice/rentals">rentals</a> chart',
-                    'default': True,
                 },
                 {
                     'name': 'chart_display_boxoffice',
                     'type': 'bool',
                     'label': 'Box office TOP 10',
-                    'description': 'IMDB Box office <a href="http://www.imdb.com/chart/">TOP 10</a> chart',
+                    'description': 'IMDB Box office <a href="http://www.imdb.com/chart/" target="_blank">TOP 10</a> chart',
                     'default': True,
                 },
             ],

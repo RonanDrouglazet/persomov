@@ -26,6 +26,7 @@ class DownloaderBase(Provider):
 
     torrent_sources = [
         'https://torcache.net/torrent/%s.torrent',
+        'https://itorrents.org/torrent/%s.torrent',
     ]
 
     torrent_trackers = [
@@ -136,7 +137,7 @@ class DownloaderBase(Provider):
 
         for source in sources:
             try:
-                filedata = self.urlopen(source % torrent_hash, headers = {'Referer': ''}, show_error = False)
+                filedata = self.urlopen(source % torrent_hash, headers = {'Referer': source % torrent_hash}, show_error = False)
                 if 'torcache' in filedata and 'file not found' in filedata.lower():
                     continue
 

@@ -46,6 +46,20 @@
 		window.addEvent('resize', self.resize.bind(self));
 		self.resize();
 
+		//self.checkCache();
+
+	},
+
+	checkCache: function(){
+		window.addEventListener('load', function() {
+			window.applicationCache.addEventListener('updateready', function(e) {
+				if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
+					window.applicationCache.swapCache();
+					window.location.reload();
+				}
+			}, false);
+
+		}, false);
 	},
 
 	resize: function(){
@@ -107,6 +121,10 @@
 	createLayout: function(){
 		var self = this;
 
+		// TODO : sorry, it's a crutch... Need to move self.hide_update initialization to appropriate place..
+		// WebUI Feature:
+		self.hide_update = !! App.options && App.options.webui_feature && App.options.webui_feature.hide_menuitem_update;
+
 		self.block.header = new BlockBase();
 
 		self.c.adopt(
@@ -136,12 +154,6 @@
 				'href': App.createUrl('settings/about')
 			}),
 			new Element('a', {
-				'text': 'Check for Updates',
-				'events': {
-					'click': self.checkForUpdate.bind(self, null)
-				}
-			}),
-			new Element('a', {
 				'text': 'Settings',
 				'href': App.createUrl('settings/general')
 			}),
@@ -162,6 +174,15 @@
 				}
 			})
 		];
+
+		if (!self.hide_update){
+			setting_links.splice(1, 0, new Element('a', {
+				'text': 'Check for Updates',
+				'events': {
+					'click': self.checkForUpdate.bind(self, null)
+				}
+			}));
+		};
 
 		setting_links.each(function(a){
 			self.block.more.addLink(a);

@@ -9,7 +9,7 @@ import sys
 
 from couchpotato.api import addApiView
 from couchpotato.core.event import fireEvent, addEvent
-from couchpotato.core.helpers.variable import cleanHost, md5, isSubFolder
+from couchpotato.core.helpers.variable import cleanHost, md5, isSubFolder, compareVersions
 from couchpotato.core.logger import CPLog
 from couchpotato.core.plugins.base import Plugin
 from couchpotato.environment import Env
@@ -80,8 +80,20 @@ class Core(Plugin):
         try: from lxml import etree
         except: log.error('LXML not available, please install for better/faster scraping support: `http://lxml.de/installation.html`')
 
-        try: import OpenSSL
-        except: log.error('OpenSSL not available, please install for better requests validation: `https://pyopenssl.readthedocs.org/en/latest/install.html`')
+        try:
+            import OpenSSL
+            v = OpenSSL.__version__
+            v_needed = '0.15'
+            if compareVersions(OpenSSL.__version__, v_needed) < 0:
+                log.error('OpenSSL installed but %s is needed while %s is installed. Run `pip install pyopenssl --upgrade`', (v_needed, v))
+
+            try:
+                import ssl
+                log.debug('OpenSSL detected: pyopenssl (%s) using OpenSSL (%s)', (v, ssl.OPENSSL_VERSION))
+            except:
+                pass
+        except:
+            log.error('OpenSSL not available, please install for better requests validation: `https://pyopenssl.readthedocs.org/en/latest/install.html`: %s', traceback.format_exc())
 
     def md5Password(self, value):
         return md5(value) if value else ''
@@ -237,6 +249,7 @@ config = [{
                 {
                     'name': 'username',
                     'default': '',
+                    'ui-meta' : 'rw',
                 },
                 {
                     'name': 'password',
@@ -290,23 +303,23 @@ config = [{
                 {
                     'name': 'api_key',
                     'default': uuid4().hex,
-                    'readonly': 1,
-                    'description': 'Let 3rd party app do stuff. <a target="_self" href="../../docs/">Docs</a>',
+                    'ui-meta' : 'ro',
+                    'description': 'Let 3rd party app do stuff. <a href="../../docs/" target="_self">Docs</a>',
                 },
                 {
                     'name': 'dereferer',
-                    'default': 'http://www.dereferer.org/?',
+                    'default': 'http://www.nullrefer.com/?',
                     'description': 'Derefer links to external sites, keep empty for no dereferer. Example: http://www.dereferer.org/? or http://www.nullrefer.com/?.',
                 },
                 {
                     'name': 'use_proxy',
                     'default': 0,
                     'type': 'bool',
-                    'description': 'Route outbound connections via proxy. Currently, only <a target=_"blank" href="https://en.wikipedia.org/wiki/Proxy_server#Web_proxy_servers">HTTP(S) proxies</a> are supported. ',
+                    'description': 'Route outbound connections via proxy. Currently, only <a href="https://en.wikipedia.org/wiki/Proxy_server#Web_proxy_servers" target=_"blank">HTTP(S) proxies</a> are supported. ',
                 },
                 {
                     'name': 'proxy_server',
-                    'description': 'Override system default proxy server. Currently, only <a target=_"blank" href="https://en.wikipedia.org/wiki/Proxy_server#Web_proxy_servers">HTTP(S) proxies</a> are supported. Ex. <i>\"127.0.0.1:8080\"</i>. Keep empty to use system default proxy server.',
+                    'description': 'Override system default proxy server. Currently, only <a href="https://en.wikipedia.org/wiki/Proxy_server#Web_proxy_servers" target=_"blank">HTTP(S) proxies</a> are supported. Ex. <i>\"127.0.0.1:8080\"</i>. Keep empty to use system default proxy server.',
                 },
                 {
                     'name': 'proxy_username',
@@ -316,6 +329,11 @@ config = [{
                     'name': 'proxy_password',
                     'type': 'password',
                     'description': 'Leave blank for no password.',
+                },
+                {
+                    'name': 'bookmarklet_host',
+                    'description': 'Override default bookmarklet host. This can be useful in a reverse proxy environment. For example: "http://username:password@customHost:1020". Requires restart to take effect.',
+                    'advanced': True,
                 },
                 {
                     'name': 'debug',
@@ -343,7 +361,7 @@ config = [{
                     'name': 'permission_folder',
                     'default': '0755',
                     'label': 'Folder CHMOD',
-                    'description': 'Can be either decimal (493) or octal (leading zero: 0755). <a target="_blank" href="http://permissions-calculator.org/">Calculate the correct value</a>',
+                    'description': 'Can be either decimal (493) or octal (leading zero: 0755). <a href="http://permissions-calculator.org/" target="_blank">Calculate the correct value</a>',
                 },
                 {
                     'name': 'permission_file',
